@@ -1,4 +1,10 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from 'react';
 import { Button, Checkbox, Input, Label } from '../ui';
 
 interface Props {
@@ -8,6 +14,14 @@ interface Props {
   onToggleCompleted: (id: string) => void;
   onDeleteTodo: (id: string) => void;
   onEditTodo: (id: string, newTitle: string) => void;
+}
+
+function usePrevious(value: boolean) {
+  const ref = useRef<boolean | null>(null);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }
 
 function Todo({
@@ -20,6 +34,28 @@ function Todo({
 }: Props) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>(title);
+
+  const editFieldRef = useRef<HTMLInputElement | null>(null);
+  const editButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  /* isEditing이 변경된 시점을 알아야 할 때의 논리:
+      if (wasNotEditingBefore && isEditingNow) {
+        focusOnEditField();
+      }
+      if (wasEditingBefore && isNotEditingNow) {
+        focusOnEditButton();
+      }
+  */
+  const wasEditing = usePrevious(isEditing); // 이전 값
+
+  useEffect(() => {
+    if (!wasEditing && isEditing) {
+      editFieldRef.current?.focus();
+    }
+    if (wasEditing && !isEditing) {
+      editButtonRef.current?.focus();
+    }
+  }, [wasEditing, isEditing]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +74,7 @@ function Todo({
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               setNewName(e.target.value)
             }
+            ref={editFieldRef}
           />
         </div>
       </div>
@@ -46,13 +83,16 @@ function Todo({
           type='button'
           variant={'destructive'}
           className='flex-1 cursor-pointer outline-none border-none'
-          onClick={() => setIsEditing(false)}
+          onClick={() => {
+            setIsEditing(false);
+            setNewName(title);
+          }}
         >
           취소
         </Button>
         <Button
           variant={'outline'}
-          type='button'
+          type='submit'
           className='flex-1 cursor-pointer outline-none border-none'
         >
           저장
@@ -85,6 +125,7 @@ function Todo({
           variant={'outline'}
           className='flex-1 cursor-pointer outline-none border-none'
           onClick={() => setIsEditing(true)}
+          ref={editButtonRef}
         >
           수정
         </Button>

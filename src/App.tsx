@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { FilterButton, Form, Todo } from './components/common';
 import { ModeToggle } from './components/mode-toggle';
@@ -16,9 +16,27 @@ const FILTER_MAP = {
 
 const FILTER_NAMES = Object.keys(FILTER_MAP) as FilterType[];
 
+const usePrevious = (value: number) => {
+  const ref = useRef<number | null>(null);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+
 function App() {
   const [todos, setTodos] = useState<TypeTodo[]>([]);
   const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('All');
+
+  const listHeadingRef = useRef<HTMLHeadingElement | null>(null);
+
+  const prevTodoLength = usePrevious(todos.length);
+
+  useEffect(() => {
+    if (todos.length - Number(prevTodoLength) === 1) {
+      listHeadingRef.current?.focus();
+    }
+  }, [todos.length, prevTodoLength]);
 
   // 일정 추가
   const handleAddTodo = (title: string) => {
@@ -149,7 +167,9 @@ function App() {
 
         {/* 태스크 갯수 */}
         <Badge variant={'secondary'} className='bg-blue-500/50'>
-          {todos.filter(FILTER_MAP[filter]).length}개의 일정
+          <h2 ref={listHeadingRef}>
+            {todos.filter(FILTER_MAP[filter]).length}개의 일정
+          </h2>
         </Badge>
 
         {/* 태스크 리스트 렌더링 */}
