@@ -1,4 +1,4 @@
-import type { FilterType } from '@/App';
+import type { FilterType } from '@/types/todo.type';
 import { Button } from '../ui';
 import { FILTER_LABELS } from '@/constants/filter.constant';
 

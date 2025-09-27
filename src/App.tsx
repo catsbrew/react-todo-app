@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
+
 import { nanoid } from 'nanoid';
 import { FilterButton, Form, Todo } from './components/common';
 import { ModeToggle } from './components/mode-toggle';
 import { Badge, Separator } from './components/ui';
 import { toast } from 'sonner';
+import { usePrevious } from './hooks/usePrevious';
 import type { TypeTodo } from './types/todo.type';
 
 export type FilterType = keyof typeof FILTER_MAP;
@@ -16,21 +18,13 @@ const FILTER_MAP = {
 
 const FILTER_NAMES = Object.keys(FILTER_MAP) as FilterType[];
 
-const usePrevious = (value: number) => {
-  const ref = useRef<number | null>(null);
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-};
-
 function App() {
   const [todos, setTodos] = useState<TypeTodo[]>([]);
   const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('All');
 
   const listHeadingRef = useRef<HTMLHeadingElement | null>(null);
 
-  const prevTodoLength = usePrevious(todos.length);
+  const prevTodoLength = usePrevious<number>(todos.length);
 
   useEffect(() => {
     if (todos.length - Number(prevTodoLength) === 1) {
@@ -117,7 +111,7 @@ function App() {
 
   if (todos && todos.length > 0) {
     todoList = todos.filter(FILTER_MAP[filter]).map((todo: TypeTodo, idx) => (
-      <React.Fragment key={todo.id}>
+      <Fragment key={todo.id}>
         <Todo
           id={todo.id}
           title={todo.title}
@@ -131,13 +125,13 @@ function App() {
             <Separator orientation='horizontal' className='!w-4' />
           </div>
         )}
-      </React.Fragment>
+      </Fragment>
     ));
   }
 
   // 필터 버튼
   const filterList: React.ReactNode = FILTER_NAMES.map((name, idx) => (
-    <React.Fragment key={name}>
+    <Fragment key={name}>
       <FilterButton
         text={name}
         isPressed={name === filter}
@@ -146,7 +140,7 @@ function App() {
       {idx !== FILTER_NAMES.length - 1 && (
         <Separator orientation='vertical' className='!h-4' />
       )}
-    </React.Fragment>
+    </Fragment>
   ));
 
   return (

@@ -16,13 +16,7 @@ interface Props {
   onEditTodo: (id: string, newTitle: string) => void;
 }
 
-function usePrevious(value: boolean) {
-  const ref = useRef<boolean | null>(null);
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
+import { usePrevious } from '../../hooks/usePrevious';
 
 function Todo({
   id,
@@ -46,7 +40,7 @@ function Todo({
         focusOnEditButton();
       }
   */
-  const wasEditing = usePrevious(isEditing); // 이전 값
+  const wasEditing = usePrevious<boolean>(isEditing); // 이전 값
 
   useEffect(() => {
     if (!wasEditing && isEditing) {
@@ -59,6 +53,11 @@ function Todo({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (newName.trim() === '') {
+      // 빈 값이면 저장하지 않고, 포커스 유지
+      editFieldRef.current?.focus();
+      return;
+    }
     onEditTodo(id, newName);
     setIsEditing(false);
   };
@@ -91,7 +90,7 @@ function Todo({
           취소
         </Button>
         <Button
-          variant={'outline'}
+          variant={'default'}
           type='submit'
           className='flex-1 cursor-pointer outline-none border-none'
         >
@@ -122,7 +121,7 @@ function Todo({
       <div className='flex w-full space-x-2'>
         <Button
           type='button'
-          variant={'outline'}
+          variant={'default'}
           className='flex-1 cursor-pointer outline-none border-none'
           onClick={() => setIsEditing(true)}
           ref={editButtonRef}
@@ -132,7 +131,7 @@ function Todo({
         <Button
           type='button'
           variant={'destructive'}
-          className='flex-1 cursor-pointer outline-none border-none'
+          className='flex-1 cursor-pointer outline-none'
           onClick={() => onDeleteTodo(id)}
         >
           삭제

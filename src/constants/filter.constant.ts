@@ -1,4 +1,4 @@
-import type { FilterType } from '@/App';
+import type { FilterType } from '@/types/todo.type';
 
 export const FILTER_LABELS: Record<FilterType, string> = {
   All: '모든 일정',

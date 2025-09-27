@@ -10,6 +10,9 @@ function Form({ onAddTodo }: Props) {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (title.trim() === '') {
+      return;
+    }
     onAddTodo(title);
     setTitle('');
   };
@@ -28,7 +31,7 @@ function Form({ onAddTodo }: Props) {
         }
         className='py-5 rounded-lg'
       />
-      <Button type='button' variant={'outline'} className='cursor-pointer py-5'>
+      <Button type='submit' variant={'outline'} className='cursor-pointer py-5'>
         추가
       </Button>
     </form>
