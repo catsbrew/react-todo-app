@@ -1,11 +1,10 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Button, Input } from '../ui';
+import { useTodo } from '@/context/TodoContext';
 
-interface Props {
-  onAddTodo: (title: string) => void;
-}
+function Form() {
+  const { addTodo } = useTodo();
 
-function Form({ onAddTodo }: Props) {
   const [title, setTitle] = useState<string>('');
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -13,7 +12,7 @@ function Form({ onAddTodo }: Props) {
     if (title.trim() === '') {
       return;
     }
-    onAddTodo(title);
+    addTodo(title);
     setTitle('');
   };
 

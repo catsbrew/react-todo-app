@@ -11,21 +11,14 @@ interface Props {
   id: string;
   title: string;
   completed: boolean;
-  onToggleCompleted: (id: string) => void;
-  onDeleteTodo: (id: string) => void;
-  onEditTodo: (id: string, newTitle: string) => void;
 }
 
 import { usePrevious } from '../../hooks/usePrevious';
+import { useTodo } from '@/context/TodoContext';
 
-function Todo({
-  id,
-  title,
-  completed = false,
-  onToggleCompleted,
-  onDeleteTodo,
-  onEditTodo,
-}: Props) {
+function Todo({ id, title, completed = false }: Props) {
+  const { toggleCompleted, editTodo, deleteTodo } = useTodo();
+
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [newName, setNewName] = useState<string>(title);
 
@@ -53,12 +46,12 @@ function Todo({
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (newName.trim() === '') {
+    if (newName.trim() === title || newName.trim() === '') {
       // 빈 값이면 저장하지 않고, 포커스 유지
       editFieldRef.current?.focus();
       return;
     }
-    onEditTodo(id, newName);
+    editTodo(id, newName);
     setIsEditing(false);
   };
 
@@ -111,7 +104,7 @@ function Todo({
             id={`todo-${id}`}
             className='data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700/50'
             defaultChecked={completed}
-            onCheckedChange={() => onToggleCompleted(id)}
+            onCheckedChange={() => toggleCompleted(id)}
           />
           <div className='grid gap-1.5 font-normal'>
             <p className='text-sm leading-none font-medium'>{title}</p>
@@ -132,7 +125,7 @@ function Todo({
           type='button'
           variant={'destructive'}
           className='flex-1 cursor-pointer outline-none'
-          onClick={() => onDeleteTodo(id)}
+          onClick={() => deleteTodo(id)}
         >
           삭제
         </Button>
